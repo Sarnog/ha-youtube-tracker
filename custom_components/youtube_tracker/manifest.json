@@ -1,0 +1,14 @@
+{
+  "domain": "youtube_tracker",
+  "name": "YouTube Tracker",
+  "codeowners": ["@Sarnog"],
+  "config_flow": true,
+  "dependencies": ["http"],
+  "documentation": "https://github.com/Sarnog/ha-youtube-tracker",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Sarnog/ha-youtube-tracker/issues",
+  "loggers": ["custom_components.youtube_tracker"],
+  "requirements": ["defusedxml==0.7.1"],
+  "version": "0.3.0"
+}

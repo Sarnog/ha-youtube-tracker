@@ -1,0 +1,33 @@
+# De namen en beschrijvingen staan in strings.json en de vertalingen, zodat
+# ze meebewegen met de taal van Home Assistant.
+mark_watched:
+  fields:
+    video_id:
+      example: vISlC2f0Bu8
+      selector:
+        text:
+    url:
+      example: https://www.youtube.com/watch?v=vISlC2f0Bu8
+      selector:
+        text:
+
+mark_unwatched:
+  fields:
+    video_id:
+      example: vISlC2f0Bu8
+      selector:
+        text:
+    url:
+      example: https://www.youtube.com/watch?v=vISlC2f0Bu8
+      selector:
+        text:
+
+mark_all_watched:
+  fields:
+    entity_id:
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - integration: youtube_tracker
+              domain: sensor

@@ -1,0 +1,82 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "YouTube-kanaal toevoegen",
+        "description": "Vul een channel-ID (UC...), een @handle of de volledige kanaal-URL in.",
+        "data": {
+          "kanaal": "Kanaal"
+        }
+      }
+    },
+    "error": {
+      "kanaal_niet_gevonden": "Kanaal niet gevonden of de feed is niet bereikbaar."
+    },
+    "abort": {
+      "already_configured": "Dit kanaal is al toegevoegd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Instellingen",
+        "data": {
+          "lookback_mode": "Tel video's mee vanaf",
+          "lookback_days": "Aantal dagen terug",
+          "scan_interval": "Verversen elke"
+        },
+        "data_description": {
+          "lookback_days": "Alleen van toepassing bij de modus 'aantal dagen'."
+        }
+      }
+    }
+  },
+  "selector": {
+    "lookback_mode": {
+      "options": {
+        "vorige_maand": "Begin van de vorige maand",
+        "dagen": "Een aantal dagen terug"
+      }
+    }
+  },
+  "services": {
+    "mark_watched": {
+      "name": "Markeer als bekeken",
+      "description": "Markeert één video als bekeken, zodat de teller terugloopt.",
+      "fields": {
+        "video_id": {
+          "name": "Video-ID",
+          "description": "Het YouTube video-ID, bijvoorbeeld vISlC2f0Bu8."
+        },
+        "url": {
+          "name": "URL",
+          "description": "Volledige YouTube-URL. Alternatief voor het video-ID."
+        }
+      }
+    },
+    "mark_unwatched": {
+      "name": "Markeer als ongezien",
+      "description": "Zet één video terug op ongezien.",
+      "fields": {
+        "video_id": {
+          "name": "Video-ID",
+          "description": "Het YouTube video-ID, bijvoorbeeld vISlC2f0Bu8."
+        },
+        "url": {
+          "name": "URL",
+          "description": "Volledige YouTube-URL. Alternatief voor het video-ID."
+        }
+      }
+    },
+    "mark_all_watched": {
+      "name": "Markeer alles als bekeken",
+      "description": "Vinkt alle ongeziene video's af. Zonder keuze gebeurt dit voor alle kanalen.",
+      "fields": {
+        "entity_id": {
+          "name": "Kanalen",
+          "description": "De sensors die je wilt afvinken. Laat leeg voor alle kanalen."
+        }
+      }
+    }
+  }
+}

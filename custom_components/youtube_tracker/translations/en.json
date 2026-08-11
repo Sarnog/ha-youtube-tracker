@@ -1,0 +1,82 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a YouTube channel",
+        "description": "Enter a channel ID (UC...), an @handle or the full channel URL.",
+        "data": {
+          "kanaal": "Channel"
+        }
+      }
+    },
+    "error": {
+      "kanaal_niet_gevonden": "Channel not found, or the feed could not be reached."
+    },
+    "abort": {
+      "already_configured": "This channel has already been added."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Settings",
+        "data": {
+          "lookback_mode": "Count videos starting from",
+          "lookback_days": "Number of days back",
+          "scan_interval": "Refresh every"
+        },
+        "data_description": {
+          "lookback_days": "Only applies to the 'number of days' mode."
+        }
+      }
+    }
+  },
+  "selector": {
+    "lookback_mode": {
+      "options": {
+        "vorige_maand": "The start of last month",
+        "dagen": "A number of days back"
+      }
+    }
+  },
+  "services": {
+    "mark_watched": {
+      "name": "Mark as watched",
+      "description": "Marks a single video as watched, so the counter goes down.",
+      "fields": {
+        "video_id": {
+          "name": "Video ID",
+          "description": "The YouTube video ID, for example vISlC2f0Bu8."
+        },
+        "url": {
+          "name": "URL",
+          "description": "Full YouTube URL. An alternative to the video ID."
+        }
+      }
+    },
+    "mark_unwatched": {
+      "name": "Mark as unwatched",
+      "description": "Puts a single video back to unwatched.",
+      "fields": {
+        "video_id": {
+          "name": "Video ID",
+          "description": "The YouTube video ID, for example vISlC2f0Bu8."
+        },
+        "url": {
+          "name": "URL",
+          "description": "Full YouTube URL. An alternative to the video ID."
+        }
+      }
+    },
+    "mark_all_watched": {
+      "name": "Mark everything as watched",
+      "description": "Clears all unwatched videos. Without a selection this applies to every channel.",
+      "fields": {
+        "entity_id": {
+          "name": "Channels",
+          "description": "The sensors you want to clear. Leave empty for all channels."
+        }
+      }
+    }
+  }
+}
