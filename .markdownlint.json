@@ -1,0 +1,9 @@
+{
+  "$comment": "De README en ROADMAP zijn tweetalig, met een NL- en een EN-helft. Dat botst met een paar standaardregels; die zetten we hier bewust uit.",
+  "MD033": false,
+  "MD041": false,
+  "MD024": false,
+  "MD012": false,
+  "MD001": false,
+  "MD013": false
+}

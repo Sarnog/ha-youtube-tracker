@@ -1,0 +1,65 @@
+[project]
+name = "ha-youtube-tracker"
+version = "0.3.0"
+description = "Home Assistant integratie die per YouTube-kanaal bijhoudt hoeveel video's je nog niet bekeken hebt"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Sarnog" }]
+requires-python = ">=3.13"
+
+[tool.ruff]
+# De integratie ondersteunt Home Assistant 2025.6 en nieuwer; die draait op
+# Python 3.13. Ruff waarschuwt zo voor syntax die daar nog niet bestaat.
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle: fouten
+    "W",   # pycodestyle: waarschuwingen
+    "F",   # pyflakes: ongebruikte imports en variabelen
+    "I",   # isort: volgorde van imports
+    "UP",  # pyupgrade: verouderde schrijfwijzen
+    "B",   # flake8-bugbear: veelgemaakte denkfouten
+    "SIM", # flake8-simplify: onnodig ingewikkelde code
+    "C4",  # flake8-comprehensions
+    "RUF", # ruff-eigen regels
+    "D",   # pydocstyle: docstrings, net als Home Assistant zelf
+]
+ignore = [
+    "D203", # botst met D211, Home Assistant kiest D211
+    "D213", # botst met D212, Home Assistant kiest D212
+    # D401 eist een gebiedende wijs, maar herkent alleen Engelse werkwoorden.
+    # Onze docstrings zijn Nederlands en wel degelijk gebiedend ("Initialiseer
+    # de opslag"), dus deze regel levert hier alleen valse meldingen op.
+    "D401",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.isort]
+# Home Assistant krijgt een eigen blok tussen de externe pakketten en onze
+# eigen modules in. Dat is de indeling die Home Assistant zelf ook aanhoudt.
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "homeassistant",
+    "first-party",
+    "local-folder",
+]
+
+[tool.ruff.lint.isort.sections]
+homeassistant = ["homeassistant"]
+
+[tool.ruff.format]
+# Standaard van ruff: dubbele aanhalingstekens, spaties, geen magic trailing comma
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Zonder dit kunnen de tests "custom_components.youtube_tracker" niet vinden
+pythonpath = ["."]
+# "auto" betekent dat async-tests vanzelf werken, zonder markering erboven
+asyncio_mode = "auto"

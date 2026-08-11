@@ -1,0 +1,19 @@
+# Ontwikkel- en testafhankelijkheden. Installeren in een virtuele omgeving:
+#
+#   python -m venv .venv
+#   .venv\Scripts\activate        (Windows)
+#   pip install -r requirements-dev.txt
+#
+# Let op: pytest-homeassistant-custom-component installeert een vaste versie
+# van Home Assistant zelf. Doe dit dus echt in een venv, anders verandert het
+# de Home Assistant die je verder op je systeem hebt staan.
+
+# Bevat pytest, pytest-asyncio en de Home Assistant-testhulpmiddelen.
+# Deze versie hoort bij Home Assistant 2026.8.1 en vereist Python 3.14.
+pytest-homeassistant-custom-component==0.13.355
+
+# Zit ook in manifest.json; hier nodig omdat de tests feed.py importeren
+defusedxml==0.7.1
+
+# Linter en formatter, dezelfde versie als in de GitHub Action
+ruff==0.16.2

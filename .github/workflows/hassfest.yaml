@@ -1,0 +1,24 @@
+# Hassfest is de controle die Home Assistant zelf op integraties draait.
+# Het kijkt onder andere of manifest.json klopt, of de vertalingen geldig zijn
+# en of services.yaml goed is opgebouwd.
+name: Hassfest
+
+on:
+  push:
+  pull_request:
+  # Home Assistant brengt elke maand een nieuwe versie uit met soms nieuwe
+  # eisen. Deze wekelijkse run laat het merken voordat een gebruiker het merkt.
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Hassfest-validatie
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v4
+
+      - name: Hassfest draaien
+        uses: home-assistant/actions/hassfest@master

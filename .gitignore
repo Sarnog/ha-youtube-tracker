@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtuele omgevingen
+.venv/
+venv/
+env/
+
+# Test- en linthulpmiddelen
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+
+# Home Assistant testconfiguratie
+.storage/
+home-assistant.log*
+config/
+
+# Editors en besturingssystemen
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Aantekeningen voor codeerassistenten, niet voor de repository
+AGENTS.md
+CLAUDE.md
+.claude/

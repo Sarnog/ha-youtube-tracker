@@ -1,0 +1,23 @@
+# Controleert of de repository voldoet aan de eisen van HACS: hacs.json,
+# de mappenstructuur, een beschrijving, een omschrijving op GitHub, enzovoort.
+name: HACS
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: HACS-validatie
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v4
+
+      - name: HACS-actie draaien
+        uses: hacs/action@main
+        with:
+          category: integration

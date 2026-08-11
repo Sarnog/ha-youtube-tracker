@@ -1,0 +1,4 @@
+# Zorgt dat regeleindes consistent LF blijven in de repo, ongeacht ieders
+# eigen lokale core.autocrlf-instelling (voorkomt de "this file uses LF but
+# will be converted to CRLF" waarschuwing in Git-clients).
+* text=auto eol=lf

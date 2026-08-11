@@ -1,0 +1,28 @@
+# Ruff is zowel de linter (zoekt fouten en rommel) als de formatter
+# (zet de opmaak recht). De instellingen staan in pyproject.toml.
+name: Ruff
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Linten en opmaak controleren
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v4
+
+      - name: Ruff-linter draaien
+        uses: astral-sh/ruff-action@v3
+        with:
+          version: "0.16.2"
+          args: check --output-format=github
+
+      - name: Opmaak controleren
+        uses: astral-sh/ruff-action@v3
+        with:
+          version: "0.16.2"
+          args: format --check --diff
