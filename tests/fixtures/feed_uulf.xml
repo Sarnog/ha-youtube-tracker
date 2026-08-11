@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015"
+      xmlns:media="http://search.yahoo.com/mrss/"
+      xmlns="http://www.w3.org/2005/Atom">
+  <id>yt:playlist:UULFaBcDeFgHiJkLmNoPqRsTuV</id>
+  <yt:playlistId>UULFaBcDeFgHiJkLmNoPqRsTuV</yt:playlistId>
+  <title>Uploads from Testkanaal</title>
+  <author>
+    <name>Testkanaal</name>
+    <uri>https://www.youtube.com/channel/UCaBcDeFgHiJkLmNoPqRsTuV</uri>
+  </author>
+  <published>2020-01-01T00:00:00+00:00</published>
+
+  <!-- Bewust niet op datum gesorteerd, zodat de test de sortering controleert -->
+  <entry>
+    <id>yt:video:aaaaaaaaaaa</id>
+    <yt:videoId>aaaaaaaaaaa</yt:videoId>
+    <yt:channelId>UCaBcDeFgHiJkLmNoPqRsTuV</yt:channelId>
+    <title>De oudste video</title>
+    <published>2026-07-01T10:00:00+00:00</published>
+    <updated>2026-07-01T12:00:00+00:00</updated>
+    <media:group>
+      <media:title>De oudste video</media:title>
+      <media:thumbnail url="https://i4.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg" width="480" height="360"/>
+      <media:description>Beschrijving van de oudste video.</media:description>
+    </media:group>
+  </entry>
+
+  <entry>
+    <id>yt:video:ccccccccccc</id>
+    <yt:videoId>ccccccccccc</yt:videoId>
+    <yt:channelId>UCaBcDeFgHiJkLmNoPqRsTuV</yt:channelId>
+    <title>   De nieuwste video   </title>
+    <published>2026-08-05T09:30:00+00:00</published>
+    <updated>2026-08-05T09:35:00+00:00</updated>
+    <media:group>
+      <media:title>De nieuwste video</media:title>
+      <media:thumbnail url="https://i4.ytimg.com/vi/ccccccccccc/hqdefault.jpg" width="480" height="360"/>
+    </media:group>
+  </entry>
+
+  <!-- Zonder media:group, om de terugval-thumbnail te controleren -->
+  <entry>
+    <id>yt:video:bbbbbbbbbbb</id>
+    <yt:videoId>bbbbbbbbbbb</yt:videoId>
+    <yt:channelId>UCaBcDeFgHiJkLmNoPqRsTuV</yt:channelId>
+    <title>Video zonder thumbnail in de feed</title>
+    <published>2026-07-20T18:00:00+00:00</published>
+    <updated>2026-07-20T18:00:00+00:00</updated>
+  </entry>
+
+  <!-- Onvolledige entry: moet gewoon overgeslagen worden, niet crashen -->
+  <entry>
+    <id>yt:video:kapot</id>
+    <title>Entry zonder videoId</title>
+    <published>2026-08-01T00:00:00+00:00</published>
+  </entry>
+</feed>

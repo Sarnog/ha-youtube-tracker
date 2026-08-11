@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Een geldig kanaal dat nog niets heeft geupload -->
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015"
+      xmlns:media="http://search.yahoo.com/mrss/"
+      xmlns="http://www.w3.org/2005/Atom">
+  <id>yt:playlist:UULFaBcDeFgHiJkLmNoPqRsTuV</id>
+  <title>Uploads from Leeg Kanaal</title>
+  <author>
+    <name>Leeg Kanaal</name>
+  </author>
+  <published>2026-01-01T00:00:00+00:00</published>
+</feed>

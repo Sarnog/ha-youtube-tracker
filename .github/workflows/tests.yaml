@@ -1,0 +1,31 @@
+# De echte controle draait hier, op Linux. Home Assistant ondersteunt Windows
+# niet meer, dus dit is de plek waar de tests zonder omwegen kunnen draaien.
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v4
+
+      - name: Python installeren
+        uses: actions/setup-python@v5
+        with:
+          # pytest-homeassistant-custom-component 0.13.355 vereist Python 3.14
+          python-version: "3.14"
+          cache: pip
+
+      - name: Afhankelijkheden installeren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Tests draaien
+        run: pytest -v
