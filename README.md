@@ -130,6 +130,11 @@ met: `kanaal`, `channel_id`, `video_id`, `titel`, `url`, `thumbnail` en `gepubli
 - Het attribuut toont maximaal 50 video's; de teller zelf telt er wel meer
 - Markeringen en het archief worden na 400 dagen opgeruimd
 
+### Hoe het in elkaar zit
+
+Wil je weten hoe de integratie is opgebouwd, of wil je eraan meesleutelen? De
+opzet per laag en per bestand staat in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ### Ideeën en geschiedenis
 
 Toekomstige uitbreidingen en ideeën staan in [`ROADMAP.md`](ROADMAP.md). De
@@ -271,6 +276,11 @@ with: `kanaal`, `channel_id`, `video_id`, `titel`, `url`, `thumbnail` and `gepub
   videos that appeared while Home Assistant was down
 - The attribute shows 50 videos at most; the counter itself does count beyond that
 - Markings and the archive are cleaned up after 400 days
+
+### How it fits together
+
+Want to know how the integration is built, or fancy tinkering with it? The setup
+per layer and per file lives in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ### Ideas and history
 
