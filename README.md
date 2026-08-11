@@ -141,6 +141,12 @@ Toekomstige uitbreidingen en ideeën staan in [`ROADMAP.md`](ROADMAP.md). De
 wijzigingsgeschiedenis per versie staat in de
 [release notes](https://github.com/Sarnog/ha-youtube-tracker/releases).
 
+### Merken
+
+YouTube en het YouTube-logo zijn handelsmerken van Google LLC. Deze integratie is
+een hobbyproject en heeft geen enkele band met Google of YouTube; ze wordt er niet
+door gemaakt, gesteund of goedgekeurd.
+
 ### Steun dit project ☕
 
 Vind je deze integratie nuttig? Een kleine bijdrage houdt de koffie warm
@@ -287,6 +293,12 @@ per layer and per file lives in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 Future additions and ideas live in [`ROADMAP.md`](ROADMAP.md). The per-version change
 history lives in the
 [release notes](https://github.com/Sarnog/ha-youtube-tracker/releases).
+
+### Trademarks
+
+YouTube and the YouTube logo are trademarks of Google LLC. This integration is a
+hobby project with no connection to Google or YouTube whatsoever; it is not made,
+endorsed or approved by them.
 
 ### Support this project ☕
 
