@@ -23,9 +23,11 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     EVENT_NIEUWE_VIDEO,
+    MARK_URL,
     MAX_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
     MODE_VORIGE_MAAND,
+    VIEW_URL,
 )
 from .feed import FeedError, async_fetch_feed
 from .store import WatchedStore
@@ -63,7 +65,6 @@ class YouTubeChannelCoordinator(DataUpdateCoordinator[list[dict]]):
         archive: VideoArchive,
     ) -> None:
         """Initialiseer de coordinator."""
-        self.entry = entry
         self.store = store
         self.archive = archive
         self.channel_id: str = entry.data[CONF_CHANNEL_ID]
@@ -78,6 +79,9 @@ class YouTubeChannelCoordinator(DataUpdateCoordinator[list[dict]]):
         super().__init__(
             hass,
             _LOGGER,
+            # Expliciet meegeven; Home Assistant leidt dit niet meer zelf af
+            # en de entry is via self.config_entry beschikbaar
+            config_entry=entry,
             name=f"{DOMAIN} {self.channel_name}",
             update_interval=timedelta(minutes=interval),
         )
@@ -86,8 +90,8 @@ class YouTubeChannelCoordinator(DataUpdateCoordinator[list[dict]]):
     def peildatum(self) -> datetime:
         """Geef het moment vanaf wanneer video's meetellen."""
         return bereken_peildatum(
-            self.entry.options.get(CONF_LOOKBACK_MODE, DEFAULT_LOOKBACK_MODE),
-            self.entry.options.get(CONF_LOOKBACK_DAYS, DEFAULT_LOOKBACK_DAYS),
+            self.config_entry.options.get(CONF_LOOKBACK_MODE, DEFAULT_LOOKBACK_MODE),
+            self.config_entry.options.get(CONF_LOOKBACK_DAYS, DEFAULT_LOOKBACK_DAYS),
         )
 
     async def _async_update_data(self) -> list[dict]:
@@ -119,17 +123,27 @@ class YouTubeChannelCoordinator(DataUpdateCoordinator[list[dict]]):
         return alles
 
     def _meld_nieuwe_videos(self, videos: list[dict], nieuwe_ids: set[str]) -> None:
-        """Vuur een event af voor elke nieuwe video die nog meetelt."""
+        """Vuur een event af voor elke nieuwe video die nog meetelt.
+
+        Het event bevat alles wat een automatisering nodig heeft, zodat die de
+        sensor niet hoeft op te zoeken: de klik-links van deze video en hoeveel
+        video's van dit kanaal er in totaal nog ongezien zijn.
+        """
         peildatum = self.peildatum
 
-        for video in videos:
+        # Te oud om mee te tellen, of al afgevinkt via een service, valt af
+        ongezien = [
+            video
+            for video in videos
+            if video["gepubliceerd"]
+            and video["gepubliceerd"] >= peildatum
+            and not self.store.is_watched(video["video_id"])
+        ]
+
+        for video in ongezien:
             if video["video_id"] not in nieuwe_ids:
                 continue
-            # Te oud om mee te tellen, of al afgevinkt via een service
-            if not video["gepubliceerd"] or video["gepubliceerd"] < peildatum:
-                continue
-            if self.store.is_watched(video["video_id"]):
-                continue
+            handtekening = self.store.maak_handtekening(video["video_id"])
             self.hass.bus.async_fire(
                 EVENT_NIEUWE_VIDEO,
                 {
@@ -140,6 +154,15 @@ class YouTubeChannelCoordinator(DataUpdateCoordinator[list[dict]]):
                     "url": video["url"],
                     "thumbnail": video["thumbnail"],
                     "gepubliceerd": video["gepubliceerd"].isoformat(),
+                    # Zo kan een melding meteen doorlinken en afvinken
+                    "kijk_url": VIEW_URL.format(
+                        video_id=video["video_id"], signature=handtekening
+                    ),
+                    "markeer_url": MARK_URL.format(
+                        video_id=video["video_id"], signature=handtekening
+                    ),
+                    # Inclusief deze video; handig voor "je hebt er nog 5 open"
+                    "ongezien": len(ongezien),
                 },
             )
 
