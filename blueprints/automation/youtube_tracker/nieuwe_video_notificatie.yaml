@@ -1,0 +1,219 @@
+blueprint:
+  name: YouTube Tracker - melding bij een nieuwe video
+  description: >
+    Stuurt een melding naar je telefoon zodra YouTube Tracker een nieuwe, nog
+    ongeziene video vindt. De melding toont de titel, het kanaal, de thumbnail
+    en hoeveel video's van dat kanaal je nog open hebt staan.
+
+
+    Tik je op de melding, dan wordt de video afgevinkt en meteen op YouTube
+    geopend. Daaronder zitten twee knoppen: **Afvinken** (zonder te kijken) en
+    **Alleen openen** (kijken zonder af te vinken).
+
+
+    Werkt op Android en iOS.
+  domain: automation
+  author: Sarnog
+  source_url: https://github.com/Sarnog/ha-youtube-tracker/blob/main/blueprints/automation/youtube_tracker/nieuwe_video_notificatie.yaml
+  homeassistant:
+    min_version: "2024.10.0"
+
+  input:
+    melding:
+      name: Melding
+      icon: mdi:cellphone-message
+      input:
+        notificatiedienst:
+          name: Notificatiedienst
+          description: >
+            De notify-dienst waar de melding heen gaat, bijvoorbeeld
+            `notify.mobile_app_danny`. Een groep zoals
+            `notify.all_phones_family` mag ook. Je vindt de exacte naam onder
+            Ontwikkelhulpmiddelen > Acties, door op "notify" te zoeken.
+          selector:
+            text:
+        titel_melding:
+          name: Kop van de melding
+          description: "Beschikbaar: {{ kanaal }}, {{ titel }}, {{ ongezien }}."
+          default: "Nieuwe video van {{ kanaal }}"
+          selector:
+            text:
+        tekst_melding:
+          name: Tekst van de melding
+          description: >
+            Beschikbaar: {{ kanaal }}, {{ titel }}, {{ ongezien }},
+            {{ gepubliceerd }}.
+          default: >-
+            {{ titel }}
+
+            Je hebt nu {{ ongezien }} video's open van dit kanaal.
+          selector:
+            text:
+              multiline: true
+
+    filter:
+      name: Welke kanalen
+      icon: mdi:filter-variant
+      collapsed: true
+      input:
+        alleen_kanalen:
+          name: Beperk tot deze kanalen
+          description: >
+            Laat leeg om meldingen te krijgen van al je YouTube
+            Tracker-kanalen. Kies je hier sensors, dan tellen alleen die mee.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - integration: youtube_tracker
+                  domain: sensor
+
+    gedrag:
+      name: Gedrag
+      icon: mdi:cog
+      collapsed: true
+      input:
+        toon_thumbnail:
+          name: Thumbnail in de melding
+          description: Toont de miniatuur van de video in de melding.
+          default: true
+          selector:
+            boolean:
+        afvinken_bij_openen:
+          name: Afvinken zodra je de video opent
+          description: >
+            Aan (aanbevolen): tikken op de melding vinkt de video af en opent
+            hem daarna op YouTube. Uit: de video opent alleen, en blijft als
+            ongezien in je lijst staan.
+          default: true
+          selector:
+            boolean:
+        groeperen:
+          name: Meldingen groeperen
+          description: >
+            Bundelt de meldingen per kanaal, zodat je telefoon er niet vol mee
+            staat. Zet uit als je elke video los wilt zien.
+          default: true
+          selector:
+            boolean:
+        kanaal_prio:
+          name: Meldingskanaal (alleen Android)
+          description: >
+            Het Android-meldingskanaal, waarmee je per soort melding het
+            geluid en het belang instelt.
+          default: General
+          selector:
+            text:
+
+mode: parallel
+max: 25
+
+variables:
+  kanaal_filter: !input alleen_kanalen
+  wil_thumbnail: !input toon_thumbnail
+  wil_afvinken: !input afvinken_bij_openen
+  wil_groeperen: !input groeperen
+  meldingskanaal: !input kanaal_prio
+
+triggers:
+  # De integratie heeft een nieuwe, nog ongeziene video gevonden
+  - trigger: event
+    event_type: youtube_tracker_nieuwe_video
+    id: nieuwe_video
+
+  # Er is op een knop onder een eerdere melding getikt
+  - trigger: event
+    event_type: mobile_app_notification_action
+    id: knop_ingedrukt
+
+conditions:
+  - condition: or
+    conditions:
+      # Een knopdruk hoort altijd afgehandeld te worden, los van het filter
+      - condition: trigger
+        id: knop_ingedrukt
+      # Zonder filter tellen alle kanalen mee
+      - "{{ kanaal_filter | count == 0 }}"
+      # Met filter: hoort dit kanaal erbij? Vergelijken op channel_id, want
+      # dat verandert niet als je de sensor hernoemt
+      - >-
+        {{ kanaal_filter | select('is_state_attr', 'channel_id',
+           trigger.event.data.channel_id | default('')) | list | count > 0 }}
+
+actions:
+  - choose:
+      # --- Nieuwe video: melding versturen --------------------------------
+      - alias: Melding versturen
+        conditions:
+          - condition: trigger
+            id: nieuwe_video
+        sequence:
+          - variables:
+              kanaal: "{{ trigger.event.data.kanaal }}"
+              titel: "{{ trigger.event.data.titel }}"
+              ongezien: "{{ trigger.event.data.ongezien }}"
+              video_id: "{{ trigger.event.data.video_id }}"
+              gepubliceerd: >-
+                {% set maanden = ['januari', 'februari', 'maart', 'april',
+                   'mei', 'juni', 'juli', 'augustus', 'september', 'oktober',
+                   'november', 'december'] %}
+                {% set d = trigger.event.data.gepubliceerd | as_datetime | as_local %}
+                {{ d.day }} {{ maanden[d.month - 1] }}
+              # Met afvinken loopt de klik langs Home Assistant, die de video
+              # markeert en je daarna doorstuurt naar YouTube. Zonder afvinken
+              # gaan we rechtstreeks naar YouTube.
+              doelurl: >-
+                {{ trigger.event.data.kijk_url if wil_afvinken
+                   else trigger.event.data.url }}
+              # De meldingsopties in een keer opbouwen, zodat een uitgezette
+              # optie de sleutel helemaal weglaat in plaats van hem leeg mee
+              # te sturen
+              meldingsdata: >-
+                {{
+                  {
+                    'clickAction': doelurl,
+                    'url': doelurl,
+                    'tag': 'youtube-tracker-' ~ trigger.event.data.video_id,
+                    'notification_icon': 'mdi:youtube',
+                    'color': '#FF0000',
+                    'channel': meldingskanaal,
+                    'actions': [
+                      {'action': 'YTMARK|' ~ trigger.event.data.video_id,
+                       'title': 'Afvinken'},
+                      {'action': 'URI',
+                       'title': 'Alleen openen',
+                       'uri': trigger.event.data.url}
+                    ]
+                  }
+                  | combine({'image': trigger.event.data.thumbnail} if wil_thumbnail else {})
+                  | combine({'group': 'youtube-tracker-' ~ trigger.event.data.channel_id} if wil_groeperen else {})
+                }}
+          - action: !input notificatiedienst
+            data:
+              title: !input titel_melding
+              message: !input tekst_melding
+              data: "{{ meldingsdata }}"
+
+      # --- Er is op "Afvinken" getikt --------------------------------------
+      - alias: Video afvinken vanuit de melding
+        conditions:
+          - condition: trigger
+            id: knop_ingedrukt
+          - >-
+            {{ trigger.event.data.action | default('') is string
+               and trigger.event.data.action.startswith('YTMARK|') }}
+        sequence:
+          - variables:
+              # Het video-ID reist mee in de actienaam: het event biedt geen
+              # aparte ruimte voor eigen gegevens
+              gekozen_video: "{{ trigger.event.data.action.split('|')[1] }}"
+          - action: youtube_tracker.mark_watched
+            data:
+              video_id: "{{ gekozen_video }}"
+          # De melding mag weg zodra de video is afgevinkt
+          - action: !input notificatiedienst
+            data:
+              message: clear_notification
+              data:
+                tag: "youtube-tracker-{{ gekozen_video }}"
