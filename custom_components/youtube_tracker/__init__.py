@@ -190,6 +190,9 @@ def _hoort_bij(
     registry = er.async_get(hass)
     for entity_id in entity_ids:
         vermelding = registry.async_get(entity_id)
-        if vermelding and vermelding.config_entry_id == coordinator.entry.entry_id:
+        if (
+            vermelding
+            and vermelding.config_entry_id == coordinator.config_entry.entry_id
+        ):
             return True
     return False
