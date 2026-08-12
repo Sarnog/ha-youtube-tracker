@@ -15,8 +15,6 @@ De wijzigingsgeschiedenis per versie staat in de
 
 ### Ideeën
 
-- **Blueprint voor notificaties** bij het event `youtube_tracker_nieuwe_video`, met
-  een knop in de melding die de video meteen opent en afvinkt
 - **Een device per kanaal**, zodat je in automatiseringen en op het dashboard op
   apparaat of gebied kunt richten in plaats van alleen op entiteit
 - **Shorts optioneel meenemen** via een schakelaar per kanaal, door de gewone
@@ -45,8 +43,6 @@ The per-version change history lives in the
 
 ### Ideas
 
-- **A notification blueprint** for the `youtube_tracker_nieuwe_video` event, with a
-  button in the notification that opens and clears the video in one go
 - **A device per channel**, so automations and dashboards can target a device or an
   area instead of only an entity
 - **Optionally include Shorts** through a per-channel switch, by using the regular

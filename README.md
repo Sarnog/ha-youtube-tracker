@@ -91,27 +91,50 @@ Die tweede is handig als je een video buiten Home Assistant om al hebt gezien. H
 antwoordt met een lege HTTP 204, waardoor je browser niet wegnavigeert. De sensor
 verandert, dus de kaart werkt zichzelf bij.
 
-Een voorbeeld met een markdown-card:
-
-```yaml
-type: markdown
-content: |
-  {% for video in state_attr('sensor.youtube_kanaalnaam', 'videos') %}
-  [![]({{ video.thumbnail }})]({{ video.kijk_url }})
-
-  **[{{ video.titel }}]({{ video.kijk_url }})** - [afvinken]({{ video.markeer_url }})
-  {% endfor %}
-```
+**[`DASHBOARD.md`](DASHBOARD.md) bevat drie uitgewerkte kaarten**, van een
+markdown-versie die overal werkt tot een raster van tegels met de thumbnail als
+achtergrond, waarbij tikken de video opent en lang indrukken hem afvinkt.
 
 Beide links werken zonder login, want anders zouden ze niet werken vanuit een
 notificatie. In plaats van een wachtwoord zit er per video een handtekening in de URL,
 die alleen jouw Home Assistant kan maken. Een onderschepte link geldt dus alleen voor
 die ene video, nooit voor je hele lijst.
 
+### Meldingen op je telefoon
+
+Er zit een blueprint bij die een melding stuurt zodra er een nieuwe video verschijnt,
+met de titel, de thumbnail en hoeveel je er nog open hebt staan. Tikken op de melding
+opent de video en vinkt hem meteen af.
+
+<table>
+  <tr>
+    <td>Blueprint importeren:</td>
+    <td><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-youtube-tracker%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fyoutube_tracker%2Fnieuwe_video_notificatie.yaml"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog for the new video notification blueprint."></a></td>
+  </tr>
+</table>
+
+Je hoeft alleen je notificatiedienst in te vullen, bijvoorbeeld
+`notify.mobile_app_telefoon`. De rest is optioneel: beperken tot bepaalde kanalen,
+thumbnail aan of uit, wel of niet afvinken bij het openen, en groeperen per kanaal.
+
 ### Event
 
-Bij een nieuwe, nog ongeziene video wordt `youtube_tracker_nieuwe_video` afgevuurd
-met: `kanaal`, `channel_id`, `video_id`, `titel`, `url`, `thumbnail` en `gepubliceerd`.
+Bij een nieuwe, nog ongeziene video wordt `youtube_tracker_nieuwe_video` afgevuurd.
+Het event bevat alles wat een automatisering nodig heeft, zodat je de sensor niet hoeft
+op te zoeken:
+
+| Veld | Inhoud |
+| --- | --- |
+| `kanaal` | Naam van het kanaal |
+| `channel_id` | Het YouTube channel-ID |
+| `video_id` | Het video-ID |
+| `titel` | Titel van de video |
+| `url` | Gewone YouTube-link |
+| `thumbnail` | Miniatuur |
+| `gepubliceerd` | Publicatiemoment |
+| `kijk_url` | Afvinken én openen |
+| `markeer_url` | Alleen afvinken |
+| `ongezien` | Aantal ongeziene video's van dit kanaal, deze meegeteld |
 
 ### Beperkingen
 
@@ -244,27 +267,50 @@ The second one is handy when you already watched a video outside Home Assistant.
 replies with an empty HTTP 204, which keeps your browser from navigating away. The
 sensor changes, so the card updates itself.
 
-An example using a markdown card:
-
-```yaml
-type: markdown
-content: |
-  {% for video in state_attr('sensor.youtube_channelname', 'videos') %}
-  [![]({{ video.thumbnail }})]({{ video.kijk_url }})
-
-  **[{{ video.titel }}]({{ video.kijk_url }})** - [clear]({{ video.markeer_url }})
-  {% endfor %}
-```
+**[`DASHBOARD.md`](DASHBOARD.md) holds three worked-out cards**, from a markdown
+version that works everywhere to a grid of tiles with the thumbnail as background,
+where tapping opens the video and holding clears it.
 
 Both links work without a login, because otherwise they would not work from a
 notification. Instead of a password, the URL carries a per-video signature that only
 your Home Assistant can produce. An intercepted link therefore only covers that one
 video, never your whole list.
 
+### Notifications on your phone
+
+A blueprint is included that sends a notification as soon as a new video shows up,
+with the title, the thumbnail and how many you still have open. Tapping the
+notification opens the video and clears it right away.
+
+<table>
+  <tr>
+    <td>Import blueprint:</td>
+    <td><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-youtube-tracker%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fyoutube_tracker%2Fnieuwe_video_notificatie.yaml"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog for the new video notification blueprint."></a></td>
+  </tr>
+</table>
+
+All you have to fill in is your notification service, for example
+`notify.mobile_app_phone`. The rest is optional: limiting it to certain channels,
+thumbnail on or off, clearing on open or not, and grouping per channel.
+
 ### Event
 
-When a new, still unwatched video shows up, `youtube_tracker_nieuwe_video` is fired
-with: `kanaal`, `channel_id`, `video_id`, `titel`, `url`, `thumbnail` and `gepubliceerd`.
+When a new, still unwatched video shows up, `youtube_tracker_nieuwe_video` is fired.
+The event carries everything an automation needs, so you do not have to look up the
+sensor:
+
+| Field | Contents |
+| --- | --- |
+| `kanaal` | Name of the channel |
+| `channel_id` | The YouTube channel ID |
+| `video_id` | The video ID |
+| `titel` | Title of the video |
+| `url` | Plain YouTube link |
+| `thumbnail` | Thumbnail |
+| `gepubliceerd` | Publication moment |
+| `kijk_url` | Clear and open |
+| `markeer_url` | Clear only |
+| `ongezien` | Number of unwatched videos on this channel, this one included |
 
 ### Limitations
 

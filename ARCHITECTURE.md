@@ -128,6 +128,13 @@ Assistant, niet in UTC: "begin van de vorige maand" hoort middernacht bij jou
 te zijn. In UTC zou de maand voor ons pas om 01:00 of 02:00 beginnen, en
 vielen video's uit dat gaatje er net buiten.
 
+Het event `youtube_tracker_nieuwe_video` is bewust zelfstandig: het bevat de
+klik-links van die video en hoeveel video's van het kanaal nog ongezien zijn.
+Een automatisering hoeft de sensor dus niet op te zoeken, en de meegeleverde
+blueprint doet dat ook niet. Dat maakt de blueprint kwetsbaar voor
+wijzigingen in het event: de velden zijn een openbare afspraak, net als de
+namen van de services.
+
 ---
 
 # sensor.py
@@ -371,6 +378,12 @@ The cut-off date lives here too. It is calculated in your Home Assistant's
 time zone, not in UTC: "the start of last month" should be midnight where you
 are. In UTC the month would only start at 01:00 or 02:00 for us, and videos
 from that gap fell just outside it.
+
+The `youtube_tracker_nieuwe_video` event is deliberately self-contained: it
+carries that video's click links and how many videos on the channel are still
+unwatched. An automation therefore does not have to look up the sensor, and the
+bundled blueprint does not. That makes the blueprint sensitive to changes in
+the event: its fields are a public contract, just like the service names.
 
 ---
 
