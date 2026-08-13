@@ -78,12 +78,18 @@ Dit geeft een raster van tegels met de thumbnail als achtergrond en de titel
 eroverheen. **Tikken** opent de video en vinkt hem af, **lang indrukken**
 vinkt alleen af. Bovenaan staat een knop om alles in één keer af te vinken.
 
+**De sensornaam staat maar op één plek**, helemaal bovenin bij `SENSOR`. De
+rest van de kaart leest hem daar uit, ook de `entities`-lijst.
+
 ```yaml
 type: custom:config-template-card
-entities:
-  - sensor.youtube_kanaalnaam
 variables:
-  S: states['sensor.youtube_kanaalnaam']
+  # De enige plek waar je je eigen sensor invult. Let op de dubbele
+  # aanhalingstekens: de buitenste zijn voor YAML, de binnenste maken er
+  # een tekstwaarde van voor de kaart.
+  SENSOR: "'sensor.youtube_kanaalnaam'"
+entities:
+  - ${SENSOR}
 card:
   type: vertical-stack
   cards: >-
@@ -93,14 +99,14 @@ card:
         cards: [
           {
             type: 'custom:button-card',
-            entity: 'sensor.youtube_kanaalnaam',
-            name: S.attributes.kanaal,
+            entity: SENSOR,
+            name: states[SENSOR].attributes.kanaal,
             icon: 'mdi:youtube',
             show_state: true,
-            state_display: S.state + ' ongezien',
+            state_display: states[SENSOR].state + ' ongezien',
             styles: {
-              card: [{'--paper-card-background-color': 'var(--card-background-color)'}],
-              icon: [{color: '#FF0000'}],
+              card: [{height: '110px'}],
+              icon: [{color: '#FF0000'}, {width: '40px'}],
               name: [{'font-weight': '600'}]
             }
           },
@@ -111,16 +117,21 @@ card:
             tap_action: {
               action: 'perform-action',
               perform_action: 'youtube_tracker.mark_all_watched',
-              data: { entity_id: 'sensor.youtube_kanaalnaam' }
+              data: { entity_id: SENSOR }
             },
-            confirmation: { text: 'Alles van dit kanaal afvinken?' }
+            confirmation: { text: 'Alles van dit kanaal afvinken?' },
+            styles: {
+              card: [{height: '110px'}],
+              icon: [{width: '40px'}],
+              name: [{'font-weight': '600'}]
+            }
           }
         ]
       }
     ].concat(
-      (S.attributes.videos || []).length === 0
+      (states[SENSOR].attributes.videos || []).length === 0
         ? [{ type: 'markdown', content: 'Je bent bij, er staat niets meer open.' }]
-        : (S.attributes.videos || []).map(v => ({
+        : (states[SENSOR].attributes.videos || []).map(v => ({
             type: 'custom:button-card',
             tap_action: { action: 'url', url_path: v.kijk_url },
             hold_action: {
@@ -175,9 +186,41 @@ card:
     )}
 ```
 
-Let op de aanhalingstekens: de blokken tussen `${ }` zijn JavaScript, geen
-Jinja. Daarom `S.attributes.videos` in plaats van `state_attr(...)`, en
-`||` in plaats van `or`.
+Let op: de blokken tussen `${ }` zijn JavaScript, geen Jinja. Daarom
+`states[SENSOR].attributes.videos` in plaats van `state_attr(...)`, en `||`
+in plaats van `or`.
+
+De twee tegels bovenaan krijgen allebei `height: '110px'`, anders wordt de
+linker hoger doordat die een extra regel met de teller heeft.
+
+### Meerdere kanalen zonder knippen en plakken
+
+Heb je meer kanalen, dan wil je de kaart niet per kanaal kopiëren. Met
+**decluttering-card** maak je er één sjabloon van. Zet dit bovenin je
+dashboard via de rauwe configuratie-editor (drie puntjes → **Rauwe
+configuratie-editor bewerken**):
+
+```yaml
+decluttering_templates:
+  youtube_kanaal:
+    card:
+      type: custom:config-template-card
+      variables:
+        SENSOR: "'[[sensor]]'"
+      entities:
+        - ${SENSOR}
+      card:
+        # ... hier de rest van de kaart hierboven, ongewijzigd ...
+```
+
+Daarna is een kanaal toevoegen nog maar drie regels:
+
+```yaml
+type: custom:decluttering-card
+template: youtube_kanaal
+variables:
+  - sensor: sensor.youtube_kanaalnaam
+```
 
 ---
 
@@ -317,6 +360,11 @@ Use the YAML from the Dutch section above — only the two label strings differ:
 change `'nl-NL'` to your own locale and `'Alles afvinken'` to
 `'Clear everything'`.
 
+**The sensor name appears only once**, at the top under `SENSOR`. The rest of
+the card reads it from there, including the `entities` list. Both top tiles get
+`height: '110px'`, otherwise the left one grows taller because it carries an
+extra line with the counter.
+
 ---
 
 ## Variant 3: compact, newest only
@@ -345,8 +393,31 @@ The `conditional` card hides the whole thing once you are caught up.
 
 ## Multiple channels
 
-With several channels, repeat the card per sensor. To keep it tidy, put them
-in an **expander-card** or use a `grid` with two columns.
+With several channels you do not want to copy the card per channel. Turn it
+into a template with **decluttering-card**, through the raw configuration
+editor (three dots → **Edit in raw configuration editor**):
+
+```yaml
+decluttering_templates:
+  youtube_kanaal:
+    card:
+      type: custom:config-template-card
+      variables:
+        SENSOR: "'[[sensor]]'"
+      entities:
+        - ${SENSOR}
+      card:
+        # ... the rest of the card above, unchanged ...
+```
+
+After that, adding a channel is three lines:
+
+```yaml
+type: custom:decluttering-card
+template: youtube_kanaal
+variables:
+  - sensor: sensor.youtube_channelname
+```
 
 A combined counter across all channels is a template sensor, created through
 **Settings → Devices & services → Helpers**:
