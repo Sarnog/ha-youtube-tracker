@@ -1,6 +1,6 @@
 [project]
 name = "ha-youtube-tracker"
-version = "0.4.1"
+version = "0.4.2"
 description = "Home Assistant integratie die per YouTube-kanaal bijhoudt hoeveel video's je nog niet bekeken hebt"
 readme = "README.md"
 license = { file = "LICENSE" }

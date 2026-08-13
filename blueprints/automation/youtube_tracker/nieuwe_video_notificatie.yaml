@@ -128,9 +128,30 @@ blueprint:
 
             `kop` en `bericht` (de kop en tekst hierboven, al ingevuld),
             `kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`,
-            `thumbnail`, `doelurl` (waar de melding heen linkt) en
+            `thumbnail`, `doelurl` (waar de melding heen linkt),
             `meldingsacties` (de knoppen Afvinken en Alleen openen, in het
-            formaat van de companion-app).
+            formaat van de companion-app) en `melding_tag`.
+
+
+            Geef `melding_tag` door als tag van de melding, anders kan de
+            melding hieronder niet worden weggehaald.
+          default: []
+          selector:
+            action:
+        eigen_wis_actie:
+          name: Zelf de melding wissen
+          description: >
+            Alleen nodig als je hierboven zelf verstuurt. Dit wordt uitgevoerd
+            nadat je op Afvinken hebt getikt, om de melding van je scherm te
+            halen.
+
+
+            Beschikbaar: `melding_tag` (dezelfde tag als bij het versturen) en
+            `video_id`. De companion-app wist een melding zodra de tekst van
+            het bericht precies `clear_notification` is en de tag klopt.
+
+
+            Laat leeg als je de melding wilt laten staan.
           default: []
           selector:
             action:
@@ -146,6 +167,7 @@ variables:
   meldingskanaal: !input kanaal_prio
   dienst: !input notificatiedienst
   eigen_stappen: !input eigen_actie
+  eigen_wis_stappen: !input eigen_wis_actie
 
 triggers:
   # De integratie heeft een nieuwe, nog ongeziene video gevonden
@@ -188,6 +210,8 @@ actions:
               ongezien: "{{ trigger.event.data.ongezien }}"
               video_id: "{{ trigger.event.data.video_id }}"
               thumbnail: "{{ trigger.event.data.thumbnail }}"
+              # Waarmee de melding later terug te vinden is om te wissen
+              melding_tag: "youtube-tracker-{{ trigger.event.data.video_id }}"
               gepubliceerd: >-
                 {% set maanden = ['januari', 'februari', 'maart', 'april',
                    'mei', 'juni', 'juli', 'augustus', 'september', 'oktober',
@@ -223,7 +247,7 @@ actions:
                   {
                     'clickAction': doelurl,
                     'url': doelurl,
-                    'tag': 'youtube-tracker-' ~ video_id,
+                    'tag': melding_tag,
                     'notification_icon': 'mdi:youtube',
                     'color': '#FF0000',
                     'channel': meldingskanaal,
@@ -260,13 +284,19 @@ actions:
               # Het video-ID reist mee in de actienaam: het event biedt geen
               # aparte ruimte voor eigen gegevens
               gekozen_video: "{{ trigger.event.data.action.split('|')[1] }}"
+              video_id: "{{ trigger.event.data.action.split('|')[1] }}"
+              # Precies dezelfde tag als bij het versturen, anders vindt de
+              # app de melding niet terug
+              melding_tag: "youtube-tracker-{{ trigger.event.data.action.split('|')[1] }}"
           - action: youtube_tracker.mark_watched
             data:
               video_id: "{{ gekozen_video }}"
-          # De melding mag weg zodra de video is afgevinkt. Dit kan alleen via
-          # een notify-dienst; bij een eigen verzendwijze weten we niet waar
-          # de melding heen ging, dus slaan we het over.
+          # De melding mag van het scherm zodra de video is afgevinkt
           - choose:
+              # Zelf verstuurd? Dan ook zelf wissen
+              - conditions:
+                  - "{{ eigen_wis_stappen | count > 0 }}"
+                sequence: !input eigen_wis_actie
               - conditions:
                   - "{{ dienst | trim != '' }}"
                 sequence:
@@ -274,4 +304,4 @@ actions:
                     data:
                       message: clear_notification
                       data:
-                        tag: "youtube-tracker-{{ gekozen_video }}"
+                        tag: "{{ melding_tag }}"

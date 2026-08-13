@@ -119,9 +119,37 @@ thumbnail aan of uit, wel of niet afvinken bij het openen, en groeperen per kana
 
 **Heb je een eigen notificatiescript?** Onder **Eigen verzendwijze** kun je dat
 aanroepen in plaats van een notify-dienst. De blueprint zet dan `kop`, `bericht`,
-`kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`, `thumbnail`, `doelurl` en
-`meldingsacties` voor je klaar, zodat je ze op de veldnamen van je eigen script kunt
-plakken.
+`kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`, `thumbnail`, `doelurl`,
+`meldingsacties` en `melding_tag` voor je klaar, zodat je ze op de veldnamen van je
+eigen script kunt plakken:
+
+```yaml
+action: script.mijn_notificatiescript
+data:
+  ontvanger: telefoon
+  message_title: "{{ kop }}"
+  message_text: "{{ bericht }}"
+  image: "{{ thumbnail }}"
+  clickaction: "{{ doelurl }}"
+  actions: "{{ meldingsacties }}"
+  tag: "{{ melding_tag }}"
+```
+
+Vul daarnaast **Zelf de melding wissen** in, dan verdwijnt de melding ook netjes van
+je scherm zodra je op *Afvinken* tikt:
+
+```yaml
+action: script.mijn_notificatiescript
+data:
+  ontvanger: telefoon
+  message_text: clear_notification
+  tag: "{{ melding_tag }}"
+```
+
+Dat werkt met elk script dat `message` en `tag` doorgeeft aan de companion-app: die
+wist een melding zodra de tekst precies `clear_notification` is en de tag klopt. Geef
+`melding_tag` dus ook mee bij het versturen, anders is de melding later niet terug te
+vinden.
 
 ### Event
 
@@ -301,8 +329,36 @@ thumbnail on or off, clearing on open or not, and grouping per channel.
 
 **Got your own notification script?** Under **Eigen verzendwijze** you can call it
 instead of a notify service. The blueprint then hands you `kop`, `bericht`,
-`kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`, `thumbnail`, `doelurl`
-and `meldingsacties`, ready to map onto your own script's field names.
+`kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`, `thumbnail`, `doelurl`,
+`meldingsacties` and `melding_tag`, ready to map onto your own script's field names:
+
+```yaml
+action: script.my_notification_script
+data:
+  ontvanger: phone
+  message_title: "{{ kop }}"
+  message_text: "{{ bericht }}"
+  image: "{{ thumbnail }}"
+  clickaction: "{{ doelurl }}"
+  actions: "{{ meldingsacties }}"
+  tag: "{{ melding_tag }}"
+```
+
+Also fill in **Zelf de melding wissen**, and the notification disappears from your
+screen the moment you tap *Afvinken*:
+
+```yaml
+action: script.my_notification_script
+data:
+  ontvanger: phone
+  message_text: clear_notification
+  tag: "{{ melding_tag }}"
+```
+
+This works with any script that passes `message` and `tag` through to the companion
+app: it clears a notification as soon as the text is exactly `clear_notification` and
+the tag matches. So do pass `melding_tag` when sending too, otherwise the
+notification cannot be found again later.
 
 ### Event
 
