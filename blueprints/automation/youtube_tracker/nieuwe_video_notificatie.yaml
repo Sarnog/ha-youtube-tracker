@@ -27,9 +27,14 @@ blueprint:
           name: Notificatiedienst
           description: >
             De notify-dienst waar de melding heen gaat, bijvoorbeeld
-            `notify.mobile_app_danny`. Een groep zoals
-            `notify.all_phones_family` mag ook. Je vindt de exacte naam onder
+            `notify.mobile_app_telefoon`. Een groep zoals
+            `notify.all_phones` mag ook. Je vindt de exacte naam onder
             Ontwikkelhulpmiddelen > Acties, door op "notify" te zoeken.
+
+
+            Laat dit leeg als je onderaan bij "Eigen verzendwijze" je eigen
+            script gebruikt.
+          default: ""
           selector:
             text:
         titel_melding:
@@ -106,6 +111,30 @@ blueprint:
           selector:
             text:
 
+    eigen:
+      name: Eigen verzendwijze
+      icon: mdi:script-text-outline
+      collapsed: true
+      input:
+        eigen_actie:
+          name: Zelf versturen
+          description: >
+            Laat leeg om gewoon de notificatiedienst hierboven te gebruiken.
+
+
+            Heb je een eigen notificatiescript met andere veldnamen, zet dan
+            hier de aanroep neer. Deze variabelen staan dan voor je klaar:
+
+
+            `kop` en `bericht` (de kop en tekst hierboven, al ingevuld),
+            `kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`,
+            `thumbnail`, `doelurl` (waar de melding heen linkt) en
+            `meldingsacties` (de knoppen Afvinken en Alleen openen, in het
+            formaat van de companion-app).
+          default: []
+          selector:
+            action:
+
 mode: parallel
 max: 25
 
@@ -115,6 +144,8 @@ variables:
   wil_afvinken: !input afvinken_bij_openen
   wil_groeperen: !input groeperen
   meldingskanaal: !input kanaal_prio
+  dienst: !input notificatiedienst
+  eigen_stappen: !input eigen_actie
 
 triggers:
   # De integratie heeft een nieuwe, nog ongeziene video gevonden
@@ -149,11 +180,14 @@ actions:
           - condition: trigger
             id: nieuwe_video
         sequence:
+          # Eerst de losse gegevens uit het event, want de kop en de tekst
+          # hieronder verwijzen ernaar
           - variables:
               kanaal: "{{ trigger.event.data.kanaal }}"
               titel: "{{ trigger.event.data.titel }}"
               ongezien: "{{ trigger.event.data.ongezien }}"
               video_id: "{{ trigger.event.data.video_id }}"
+              thumbnail: "{{ trigger.event.data.thumbnail }}"
               gepubliceerd: >-
                 {% set maanden = ['januari', 'februari', 'maart', 'april',
                    'mei', 'juni', 'juli', 'augustus', 'september', 'oktober',
@@ -166,6 +200,21 @@ actions:
               doelurl: >-
                 {{ trigger.event.data.kijk_url if wil_afvinken
                    else trigger.event.data.url }}
+              meldingsacties: >-
+                {{
+                  [
+                    {'action': 'YTMARK|' ~ trigger.event.data.video_id,
+                     'title': 'Afvinken'},
+                    {'action': 'URI',
+                     'title': 'Alleen openen',
+                     'uri': trigger.event.data.url}
+                  ]
+                }}
+          # Dan de kop en de tekst, met de gegevens hierboven ingevuld. Zo
+          # staan ze ook klaar voor een eigen verzendwijze.
+          - variables:
+              kop: !input titel_melding
+              bericht: !input tekst_melding
               # De meldingsopties in een keer opbouwen, zodat een uitgezette
               # optie de sleutel helemaal weglaat in plaats van hem leeg mee
               # te sturen
@@ -174,26 +223,29 @@ actions:
                   {
                     'clickAction': doelurl,
                     'url': doelurl,
-                    'tag': 'youtube-tracker-' ~ trigger.event.data.video_id,
+                    'tag': 'youtube-tracker-' ~ video_id,
                     'notification_icon': 'mdi:youtube',
                     'color': '#FF0000',
                     'channel': meldingskanaal,
-                    'actions': [
-                      {'action': 'YTMARK|' ~ trigger.event.data.video_id,
-                       'title': 'Afvinken'},
-                      {'action': 'URI',
-                       'title': 'Alleen openen',
-                       'uri': trigger.event.data.url}
-                    ]
+                    'actions': meldingsacties
                   }
-                  | combine({'image': trigger.event.data.thumbnail} if wil_thumbnail else {})
+                  | combine({'image': thumbnail} if wil_thumbnail else {})
                   | combine({'group': 'youtube-tracker-' ~ trigger.event.data.channel_id} if wil_groeperen else {})
                 }}
-          - action: !input notificatiedienst
-            data:
-              title: !input titel_melding
-              message: !input tekst_melding
-              data: "{{ meldingsdata }}"
+          - choose:
+              # Eigen script of andere acties opgegeven? Dan die gebruiken
+              - conditions:
+                  - "{{ eigen_stappen | count > 0 }}"
+                sequence: !input eigen_actie
+              # Anders gewoon de opgegeven notify-dienst
+              - conditions:
+                  - "{{ dienst | trim != '' }}"
+                sequence:
+                  - action: !input notificatiedienst
+                    data:
+                      title: "{{ kop }}"
+                      message: "{{ bericht }}"
+                      data: "{{ meldingsdata }}"
 
       # --- Er is op "Afvinken" getikt --------------------------------------
       - alias: Video afvinken vanuit de melding
@@ -211,9 +263,15 @@ actions:
           - action: youtube_tracker.mark_watched
             data:
               video_id: "{{ gekozen_video }}"
-          # De melding mag weg zodra de video is afgevinkt
-          - action: !input notificatiedienst
-            data:
-              message: clear_notification
-              data:
-                tag: "youtube-tracker-{{ gekozen_video }}"
+          # De melding mag weg zodra de video is afgevinkt. Dit kan alleen via
+          # een notify-dienst; bij een eigen verzendwijze weten we niet waar
+          # de melding heen ging, dus slaan we het over.
+          - choose:
+              - conditions:
+                  - "{{ dienst | trim != '' }}"
+                sequence:
+                  - action: !input notificatiedienst
+                    data:
+                      message: clear_notification
+                      data:
+                        tag: "youtube-tracker-{{ gekozen_video }}"

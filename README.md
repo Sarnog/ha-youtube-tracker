@@ -117,6 +117,12 @@ Je hoeft alleen je notificatiedienst in te vullen, bijvoorbeeld
 `notify.mobile_app_telefoon`. De rest is optioneel: beperken tot bepaalde kanalen,
 thumbnail aan of uit, wel of niet afvinken bij het openen, en groeperen per kanaal.
 
+**Heb je een eigen notificatiescript?** Onder **Eigen verzendwijze** kun je dat
+aanroepen in plaats van een notify-dienst. De blueprint zet dan `kop`, `bericht`,
+`kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`, `thumbnail`, `doelurl` en
+`meldingsacties` voor je klaar, zodat je ze op de veldnamen van je eigen script kunt
+plakken.
+
 ### Event
 
 Bij een nieuwe, nog ongeziene video wordt `youtube_tracker_nieuwe_video` afgevuurd.
@@ -292,6 +298,11 @@ notification opens the video and clears it right away.
 All you have to fill in is your notification service, for example
 `notify.mobile_app_phone`. The rest is optional: limiting it to certain channels,
 thumbnail on or off, clearing on open or not, and grouping per channel.
+
+**Got your own notification script?** Under **Eigen verzendwijze** you can call it
+instead of a notify service. The blueprint then hands you `kop`, `bericht`,
+`kanaal`, `titel`, `ongezien`, `gepubliceerd`, `video_id`, `thumbnail`, `doelurl`
+and `meldingsacties`, ready to map onto your own script's field names.
 
 ### Event
 
